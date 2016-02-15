@@ -35,13 +35,16 @@ Even though it gained a massive traction, it still has a long way to go to be a 
 &lt;p&gt;As the name suggests, namespaces allow isolation of global resources, similar to programming language namespaces that allow the namespace functionality to stay encapsulated from the rest of the codebase.
 It appears as if a  process or a group of processes are in control of these resources.&lt;/p&gt;
 
-&lt;p&gt;There are 6 different namespaces that allow isolation of different types of system resources:
-- UTS
-- Mount
-- User
-- Network
-- Proc
-- IPC&lt;/p&gt;
+&lt;p&gt;There are 6 different namespaces that allow isolation of different types of system resources:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;UTS&lt;/li&gt;
+&lt;li&gt;Mount&lt;/li&gt;
+&lt;li&gt;User&lt;/li&gt;
+&lt;li&gt;Network&lt;/li&gt;
+&lt;li&gt;Proc&lt;/li&gt;
+&lt;li&gt;IPC&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;p&gt;I will not go too deeply in the discusssion of namespaces, you can read more about them in a brilliant series of articles by Michael Kerrisk on linux kernel namespaces. &lt;a href=&#34;https://lwn.net/Articles/531114/&#34;&gt;https://lwn.net/Articles/531114/&lt;/a&gt;&lt;/p&gt;
 
