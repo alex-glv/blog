@@ -183,8 +183,9 @@ chroot /chroot/ bin/sh
 busybox install
 </code></pre>
 
-<p>And voila!
-We have a fully functioning isolated process with internet access and own processes tree.
+<p>The above gist creates a chroot environment, bootstraps it with need devices and files, nothing too fancy.</p>
+
+<p>After executing the commands, we have a fully functioning isolated process with network access and own processes tree.
 If you run:</p>
 
 <pre><code>echo $$
@@ -204,7 +205,7 @@ We learned to unshare namespaces, create network configuration that allows acces
         <div class="col-md-3">
             <div class="well well-sm"> 
                 <h4>February 16, 2016<br>
-                <small>900 words</small></h4>
+                <small>919 words</small></h4>
                 <hr>
                 <strong>Categories</strong>
                 <ul class="list-unstyled">
