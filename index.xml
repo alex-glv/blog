@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+      <title> on Aleksandr Guljajev - Developer&#39;s blog </title>
+    <link>http://www.itchyknowsdevs.me/</link>
+    <language>en-US</language>
+    <author>Enthusiastic Hugo User</author>
+    <rights>Copyright (c) 2014, Enthusiastic Hugo User; all rights reserved.</rights>
+    <updated>Tue, 16 Feb 2016 00:00:00 UTC</updated>
+    
+    <item>
+      <title>Containers are not real</title>
+      <link>http://www.itchyknowsdevs.me/post/containers-are-not-real/</link>
+      <pubDate>Tue, 16 Feb 2016 00:00:00 UTC</pubDate>
+      <author>Enthusiastic Hugo User</author>
+      <guid>http://www.itchyknowsdevs.me/post/containers-are-not-real/</guid>
+      <description>
+
+&lt;h1 id=&#34;the-advent-of-containers:c8e2a09ea174ff8e7c9537b614f3c385&#34;&gt;The advent of containers&lt;/h1&gt;
+
+&lt;p&gt;Containers seem to have turned the industry upside down and marching full ahead to become the dominant way of shipping software.
+To uninitiated mortals, Docker seems to be kind of a strange child.
+Where does it come from, what&amp;rsquo;s it good at?
+It looks like VM, but everyone keeps telling us not to compare it to VMs.
+Even though it gained a massive traction, it still has a long way to go to be a de-facto standard every developer should be familiar with.&lt;/p&gt;
+
+&lt;p&gt;In this post I&amp;rsquo;ll go through the elements that make up the software container, what underlying infrastructure allows it to exist and how to make a DIY container on a clean ubuntu machine.&lt;/p&gt;
+
+&lt;p&gt;We will be creating our own busybox container!&lt;/p&gt;
+
+&lt;h1 id=&#34;namespaces:c8e2a09ea174ff8e7c9537b614f3c385&#34;&gt;Namespaces&lt;/h1&gt;
+
+&lt;p&gt;To create illusion of a container, Docker (and alike) utilizes Linux kernel feature - namespaces.&lt;/p&gt;
+
+&lt;p&gt;As the name suggests, namespaces allow isolation of global resources, similar to programming language namespaces that allow the namespace functionality to stay encapsulated from the rest of the codebase.
+It appears as if a  process or a group of processes are in control of these resources.&lt;/p&gt;
+
+&lt;p&gt;There are 6 different namespaces that allow isolation of different types of system resources:
+- UTS
+- Mount
+- User
+- Network
+- Proc
+- IPC&lt;/p&gt;
+
+&lt;p&gt;I will not go too deeply in the discusssion of namespaces, you can read more about them in a brilliant series of articles by Michael Kerrisk on linux kernel namespaces. &lt;a href=&#34;https://lwn.net/Articles/531114/&#34;&gt;https://lwn.net/Articles/531114/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;So, by utilizing resource isolation processes create an illusion of a standalone container.
+Interesting thing that if you search for words &amp;ldquo;containers&amp;rdquo; in linux kernel, you will find nothing related to actual concept of containerization.
+This is it, the containers don&amp;rsquo;t actually exist, they are not real, we make them real.
+Since the genie is out of the bottle now, let&amp;rsquo;s recreate a busybox container from scratch.&lt;/p&gt;
+
+&lt;h1 id=&#34;prerequisites:c8e2a09ea174ff8e7c9537b614f3c385&#34;&gt;Prerequisites&lt;/h1&gt;
+
+&lt;p&gt;I am using DigitalOcean with a clean Ubuntu 15.10 virtual machine, and nothing more, so you can easily reproduce the results.&lt;/p&gt;
+
+&lt;h1 id=&#34;network-interfaces:c8e2a09ea174ff8e7c9537b614f3c385&#34;&gt;Network interfaces&lt;/h1&gt;
+
+&lt;p&gt;Containers wouldn&amp;rsquo;t be very interesting if they didn&amp;rsquo;t have access to the internet.
+It&amp;rsquo;s like lego bricks without the studs (&amp;ldquo;stud&amp;rdquo; seems to be an official term to call those little pimples on Lego bricks &lt;a href=&#34;http://thebrickblogger.com/2010/11/lego-disctionary-basic-term/&#34;&gt;http://thebrickblogger.com/2010/11/lego-disctionary-basic-term/&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;Luckily, linux kernel provides an option of network namespaces that allow a process to have its own isolated network stack. We connect that stack with the host network namespace with virtual ethernet devices.&lt;/p&gt;
+
+&lt;p&gt;First, let&amp;rsquo;s create our network namespace:
+&lt;code&gt;ip netns add container&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Ensure that kernel allows packet forwarding:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;echo 1 &amp;gt; /proc/sys/net/ipv4/ip_forward
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now, we&amp;rsquo;ll create a pair of virtual ethernet devices. Think of them as a pipe where interfaces are on both ends.
+I like to think of them as portals to the alternate universe.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ip link add veth0 type veth peer name veth1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We created a pair of interfaces veth0 and veth1.
+We&amp;rsquo;ll add a tap device that will bridge our virtual device with the real (or not) hardware adapter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ip tuntap add tapm mode tap 
+ip link set dev tapm up
+ip link add brm type bridge
+ip link set dev tapm master brm
+ip link set dev veth0 master brm
+
+ip addr add 10.0.0.1/24 dev brm
+ip link set dev veth0 up
+ip link set dev brm up
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And iptables rules to allow traffic forward:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now, we&amp;rsquo;ll move one of them into a separate network namespace which we created before:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ip link set veth1 netns container 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s add the IP address and bring them up:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ip netns exec container ip addr add dev veth1 10.0.0.2/24
+ip netns exec container ip link set dev veth1 up
+ip netns exec container ip route add  default via 10.0.0.1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s try out if our container network interface has access to the internet:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ip netns exec container ping -c1 8.8.8.8
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If our set-up went well, you should get a successful ping response.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/&#34;&gt;http://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;OK, we&amp;rsquo;ve managed the hard part, let&amp;rsquo;s create our container&amp;rsquo;s file system and do the rest of the housekeeping&lt;/p&gt;
+
+&lt;h1 id=&#34;enter-the-namespace:c8e2a09ea174ff8e7c9537b614f3c385&#34;&gt;Enter the namespace&lt;/h1&gt;
+
+&lt;p&gt;Let&amp;rsquo;s enter the configured network namespace:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ip netns exec container bash
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By executing this command, we only separate network namespace. Everything else is still shared with the parent process.
+That&amp;rsquo;s right, you can share one or many namespaces with other processes.&lt;/p&gt;
+
+&lt;p&gt;Now, let&amp;rsquo;s move forward and unshare other namespaces. The only namespace we will not unshare is user namespace, because it makes the whole configuration more complex and is it&amp;rsquo;s not necessary for our demonstrational purposes.&lt;/p&gt;
+
+&lt;p&gt;To unshare namespaces, we&amp;rsquo;ll be using &lt;code&gt;unshare&lt;/code&gt; command.
+Unshare command will detach from the namespaces specified by flags &lt;code&gt;-m&lt;/code&gt; (mount namespace), &lt;code&gt;-p&lt;/code&gt; (PID namespace), etcetera.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;unshare -m -p -i -f --mount-proc
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s also mark mount point as private, so non of our mounts leak:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mount / --make-rprivate
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We will install busybox chroot environment using the following gist posted by github user &amp;ldquo;weakish&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;curl -O https://gist.githubusercontent.com/weakish/927135/raw/40b870c8702c52a8d0ea6d3d689e45228055c7c3/busyroot.sh  &amp;amp;&amp;amp; chmod +x busyroot.sh
+./busyroot.sh init
+chroot /chroot/ bin/sh
+busybox install
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And voila!
+We have a fully functioning isolated process with internet access and own processes tree.
+If you run:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;echo $$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You should see 1, it means that our process has process id 1 process on the system.&lt;/p&gt;
+
+&lt;h1 id=&#34;conclusion:c8e2a09ea174ff8e7c9537b614f3c385&#34;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;Hopefully, this post has shed some light on the mystery of containers.
+We learned to unshare namespaces, create network configuration that allows access to the internet and create a secure environment isolated from the global state of the host.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
