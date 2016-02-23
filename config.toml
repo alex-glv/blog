@@ -1,4 +1,32 @@
-baseurl = "http://www.itchyknowsdevs.me/"
-languageCode = "en-us"
-title = "Aleksandr Guljajev - Developer's blog"
+baseurl = "http://localhost:1313/" # TODO
+builddrafts = false
 canonifyurls = true
+contentdir = "content"
+languageCode = "en-US"
+layoutdir = "layouts"
+publishdir = "public"
+author = "Aleksandr Guljajev"
+title = "Aleksandr Guljajev"
+pygmentsuseclasses = true
+pluralizelisttitles = false
+theme = "cocoa"
+
+[permalinks]
+fixed = ":title/"
+blog = "blog/:slug/"
+
+[params]
+Author = "Aleksandr Guljajev"
+CacheBuster = true
+DateForm = "Jan 2, 2006"
+DateFormFull = "Mon Jan 2 2006 15:04:05 MST"
+Description = "Developer"
+# TODO:
+FaviconFile = "img/leaf.ico"
+#GATracker = "XYZ" # TODO:
+GitHub = "//github.com/alex-glv" # TODO:
+Initials = "ag" # displayed on single post page; DEPRECATED in v0.3.0
+Lang = "en"
+LinkedIn = "//linkedin.com/in/aleksadr-guljajev-a17941a6" # TODO:
+Twitter = "//twitter.com/jaleks_" # TODO:
+ExtraCssFiles = [ "/css/override.css" ] # relative to public directory
