@@ -9,7 +9,7 @@ author = "Aleksandr Guljajev"
 title = "Aleksandr Guljajev"
 pygmentsuseclasses = true
 pluralizelisttitles = false
-theme = "cocoa"
+theme = "cocoa-hugo-theme"
 
 [permalinks]
 fixed = ":title/"
