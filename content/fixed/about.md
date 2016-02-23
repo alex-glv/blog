@@ -13,10 +13,10 @@ I reside in Amsterdam, the Netherlands.
 I am a freelance software developer.
 
 I love progress. 
-I love learning, 
-I love customizing and crafting the tools I use.
+I love learning. 
+I love customizing and tailoring the tools I use.
 I love technology and innovation.
-I love tinkering, hacking, exploring and learning.
+I love tinkering, hacking and exploring.
 I hate most technologies, programming languages and operating systems.
 I hate flame wars on what's better. It's what works for you or what doesn't.
 I hate premature optimisation.
