@@ -29,5 +29,5 @@ I love this quote by Mark Twain: "Whenever you find yourself on the side of the 
 
 That said, I love reflecting.
 
-Write me on my email address "gulyayev.alex" at "gmail.com" to tell me about the things you hate and love.
+My email address is gulyayev.alex at gmail.com. Write to me to tell me about the things you hate and love, or the projects you are working on.
 
