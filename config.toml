@@ -1,4 +1,4 @@
-baseurl = "http://localhost:1313/" # TODO
+baseurl = "" # TODO
 builddrafts = false
 canonifyurls = true
 contentdir = "content"
