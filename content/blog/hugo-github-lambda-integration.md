@@ -1,6 +1,6 @@
 +++
 date = "2016-02-26"
-draft = true
+draft = false
 title = "Hugo on Amazon AWS Lambda integrated with GitHub"
 description = "Automate your Hugo website generation with on Amazon AWS Lambda with GitHub Webhooks"
 
