@@ -5,7 +5,7 @@ title = "About"
 
 +++
 This website is called ItchyKnowsDevs.
-It's a play on words of Itchy Nose Developers. Which doesn't make much sense either.
+It's a play on words Itchy Nose Developers. Which doesn't make much sense either.
 
 My name is Aleksandr Guljajev.
 
@@ -29,5 +29,5 @@ I love this quote by Mark Twain: "Whenever you find yourself on the side of the 
 
 That said, I love reflecting.
 
-My email address is gulyayev.alex at gmail.com. Write to me to tell me about the things you hate and love, or the projects you are working on.
+My email address is gulyayev.alex at gmail.com. Write me about the things you hate and love, or the projects you are working on.
 
