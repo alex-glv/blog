@@ -1,7 +1,7 @@
 +++
 date = "2016-03-18"
 draft = false
-title = "Developing golang in NixOS"
+title = "Developing Golang in NixOS"
 description = "A short guide on develop Golang on NixOS"
 
 +++
