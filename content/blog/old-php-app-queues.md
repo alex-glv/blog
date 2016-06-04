@@ -6,6 +6,8 @@ description = "In this post I'll walk through the steps I took to improve critic
 
 +++
 
+NB: Code accompanying the post is on [github.com/alex-glv/bunny-acme](https://github.com/alex-glv/bunny-acme)
+
 # The Problem
 
 While doing contract work optimizing and improving stability of an old PHP-based billing application I was constantly facing issues with long running processes that failed and couldn't easily restore their state.
@@ -60,22 +62,23 @@ Biller will try to perform the charge and Deactivator will manage the account su
 This approach solves a couple of issue:
 - Scalability: we are able to attach multiple workers for each role and easily scale our throughput
 - Separation of concerns: our small services will each reside in their own space and will be neatly separated 
-- Refactoring space: it becomes easier to reason about the component potentially allows better deployment strategies. In addition, testing becames much simpler with having less mocks, because we'll offsource a lot of work on our messaging platform
+- Refactoring space: it becomes easier to reason about the component potentially allows better deployment strategies. In addition, testing becames much simpler with having less mocks, because we'll offsource a lot of work on our messaging platform. You can swap your queue driver implementation and implement dummy workers.
 
 # Considerations
 
 Having workers sitting and waiting for work to do means that the process will be long lived with all the implications.
 You have to support the lifecycle, make sure the processes are started if they go down and try to eliminate all possible memory leaks.
 
-I have been using supervisor[2] to manage the processes.
+I have been using supervisord[2] to manage the processes.
 
 # Queue listeners
 
 Here's an example of a long lived queue listener:
 
 ```
-    protected function listen($queueName) 
-    {
+<?php
+    [...]
+    protected function listen($queueName) {
         /** @var \BunnyAcme\Queue\Driver\Driver $driver */
         $workers = $this->queueManager->getWorkers($queueName);
         $driver = $this->queueManager->getDriver(); // this will be AMQP driver
@@ -98,3 +101,16 @@ interface Worker {
     public function handleJob($payload);
 }
 ```
+
+# Conclusion
+
+Using queues in general and RabbitMQ specifically maintaining large components became much easier. 
+Also, implementing new services is quite simple, just implement a worker and a producer and let the RabbitMQ manage the rest.
+
+# Resources
+
+To ease the transition to using queues I have written a simple queue wrapper library that shows basic abstractions and a demo worker implementation [3] 
+
+[1] - https://www.rabbitmq.com/tutorials/amqp-concepts.html
+[2] - http://supervisord.org/
+[3] - https://github.com/alex-glv/bunnyacme/blob/master/src/Queue/Workers/SleepyWorker.php
