@@ -117,12 +117,12 @@ Another big blow for me is that I can't write om.next app without having it on t
 
 It's actually very hard to go and do something for months and then say to yourself, that it's not working out for you and it's better to move on to something, yet it's quite liberating.
 
-I think it makes zero sense to use tool as powerful as om.next for small to medium size apps, it's yet to be seen how it works out for apps at scale. It seems to be working really well for CicleCI [4].
+I think it makes zero sense to use tool as powerful as om.next for small to medium size apps, it's yet to be seen how it works out for apps at scale. It seems to be working really well for CicleCI [5].
 
 
 # Final thoughts
 
-I am opening my om.next efforts for the public: "boards-io" [5].
+I am opening my om.next efforts for the public: "boards-io" [6].
 
 I won't say what it's similar to.
 Let's say it's a clone of a product that rhymes with "Hé-llo".
@@ -139,6 +139,8 @@ The end.
 
 [3] http://untangled-web.github.io
 
-[4] https://github.com/circleci/frontend
+[4] https://github.com/omcljs/om/pulls
 
-[5] https://github.com/alex-glv/boards-io
+[5] https://github.com/circleci/frontend
+
+[6] https://github.com/alex-glv/boards-io
