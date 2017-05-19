@@ -1,5 +1,5 @@
 +++
-date = "2016-05-08"
+date = "2016-08-06"
 draft = false
 title = "Refactoring business-critical PHP application with RabbitMQ"
 description = "In this post I'll walk through the steps I took to improve critical partrs of PHP application with the help of RabbitMQ"
@@ -18,16 +18,18 @@ The process would start, extract a whole bunch of information at once and start 
 
 It would take input and produce side effects, churning along as it goes through.
 
-Imagine a manufacturing process. You probably see a conveyer belt and items at various stages being combined with other items through molding and fusing and cooling and whatnot.
+Imagine a manufacturing process in a good factory, created with the good practices in mind. A conveyer belt and items at various stages being combined with other items through molding and fusing and cooling and whatnot.
 
-What you don't imagine is a room with closed doors, someone puts all the required ingredients at once through a narrow window. They're being ingested and rumbling and grumbling starts. In 3 hours your side-effect (a manufactured item) is spit out.
+On the other hand, in a factory where good practices and standards are not followed, someone puts all the required ingredients at once through a narrow window. They're being ingested and rumbling and grumbling starts. In 3 hours your side-effect (a manufactured item) is spat out.
 
-This is fine until it isn't and something breaks.
-If something breaks, you want to know exactly where it happened by looking at the intermediate state.
+This is fine until something breaks.
+When it does, you want to know exactly where it happened by looking at the intermediate state.
 
 # Solution: queues to the rescue
 
 I decided to break down the process by introducing queues. Simply because I wanted to learn about queues and thought it would be a great way to break the complexity of the system.
+
+Rich Hickey, the creator of Clojure in his famous talk "Simple Made Easy" said:
 
 > If you are not using queues extensively, you should start right away
 > - Rich Hickey
@@ -45,24 +47,27 @@ You don't want to lose all your messages in the queue if all of your subscribers
 
 You have to break down the service into multiple roles.
 Recurring billing service might be broken down in multiple stages like:
-- Find subscriptions due to be billed
-- Eliminate expired credit card records
-- Eliminate records that have cancelled their billing preferences and opted out
-- Schedule all the rest
+
+  - Find subscriptions due to be billed
+  - Eliminate expired credit card records
+  - Eliminate records that have cancelled their billing preferences and opted out
+  - Schedule all the rest
 
 The last item will be our "messages".
 We'll send the user data over the queue system to the other side, where it will be picked up by our workers.
 
 Workers will be the following:
-- Biller 
-- Deactivator
+
+  - Biller 
+  - Deactivator
 
 Biller will try to perform the charge and Deactivator will manage the account suspension.
 
 This approach solves a couple of issue:
-- Scalability: we are able to attach multiple workers for each role and easily scale our throughput
-- Separation of concerns: our small services will each reside in their own space and will be neatly separated 
-- Refactoring space: it becomes easier to reason about the component potentially allows better deployment strategies. In addition, testing becames much simpler with having less mocks, because we'll offsource a lot of work on our messaging platform. You can swap your queue driver implementation and implement dummy workers.
+
+  - Scalability: we are able to attach multiple workers for each role and easily scale our throughput
+  - Separation of concerns: our small services will each reside in their own space and will be neatly separated 
+  - Refactoring space: it becomes easier to reason about the component potentially allows better deployment strategies. In addition, testing becames much simpler with having less mocks, because we'll offsource a lot of work on our messaging platform. You can swap your queue driver implementation and implement dummy workers.
 
 # Considerations
 
@@ -111,6 +116,6 @@ Also, implementing new services is quite simple, just implement a worker and a p
 
 To ease the transition to using queues I have written a simple queue wrapper library that shows basic abstractions and a demo worker implementation [3] 
 
-[1] - https://www.rabbitmq.com/tutorials/amqp-concepts.html
-[2] - http://supervisord.org/
-[3] - https://github.com/alex-glv/bunnyacme/blob/master/src/Queue/Workers/SleepyWorker.php
+- [1] - https://www.rabbitmq.com/tutorials/amqp-concepts.html
+- [2] - http://supervisord.org/
+- [3] - https://github.com/alex-glv/bunnyacme/blob/master/src/Queue/Workers/SleepyWorker.php

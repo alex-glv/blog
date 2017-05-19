@@ -1,3 +1,10 @@
++++
+date = "2016-02-26"
+draft = true
+title = "Testing API in microservices era"
+
++++
+
 # Testing API in microservices era
 
 With the advent of microservices and distributed scalable systems REST API seems to be the most popular choice for enabling communication between the services that comprise the application.
